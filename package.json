@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=production node index",
+    "dev": "cross-env NODE_ENV=development nodemon --inspect",
+    "lint": "cross-env NODE_ENV=development eslint ./**/*.js",
+    "test": "cross-env NODE_ENV=test echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "tasks",
@@ -13,8 +16,18 @@
   ],
   "author": "Daniel Perez",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cross-env": "^5.2.0",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "express-request-id": "^1.4.1",
+    "morgan": "^1.9.1",
+    "strip-final-newline": "^2.0.0",
+    "winston": "^3.2.1"
+  },
   "devDependencies": {
-    "express": "^4.17.1"
+    "nodemon": "^1.19.1",
+    "uuid": "^3.3.2"
   }
 }
