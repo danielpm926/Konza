@@ -39,26 +39,29 @@ exports.create = (req, res, next) => {
 exports.all = (req, res, next) => {
   const { query } = req;
   const { limit, page, skip } = paginationParseParams(query);
-
-  Model.find({})
-    .skip(skip)
-    .limit(limit)
-    .exec((err, docs) => {
-      if (err) {
-        next(err);
-      } else {
-        res.json({
-          data: docs,
-          success: true,
-          statusCode: HTTP_STATUS.OK,
-          meta: {
-            limit,
-            skip,
-            page,
-          },
-        });
-      }
-    });
+  const { sortBy = "createdAt", direction = "desc" } = query;
+  const sort = {};
+  (sort[sortBy] = direction),
+    Model.find({})
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .exec((err, docs) => {
+        if (err) {
+          next(err);
+        } else {
+          res.json({
+            data: docs,
+            success: true,
+            statusCode: HTTP_STATUS.OK,
+            meta: {
+              limit,
+              skip,
+              page,
+            },
+          });
+        }
+      });
 };
 
 exports.read = (req, res, next) => {
