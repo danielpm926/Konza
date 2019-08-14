@@ -1,12 +1,31 @@
 const HTTP_STATUS_CODE = require("http-status-codes");
 
-const { Model, fields } = require("./model");
+const { Model, fields, references, virtuals } = require("./model");
 const { paginationParseParams } = require("./../../../utils");
 const { sortParseParams, sortCompactToStr } = require("./../../../utils");
+const { filterByNested } = require("./../../../utils");
+const { populateToObject } = require("./../../../utils");
+
+/*
+ * Obtenemos un Array con los nombres de las llaves
+ * de las referencias
+ */
+const referencesNames = [
+  ...Object.getOwnPropertyNames(references),
+  ...Object.getOwnPropertyNames(virtuals),
+];
 
 exports.id = async (req, res, next, id) => {
   try {
-    const doc = await Model.findById(id).exec();
+    /*
+     * Creamos una cadena con los nombres de las
+     * referencias separadas por espacio pues asi
+     * lo requiere el metodo populate
+     */
+    const populate = referencesNames.join(" ");
+    const doc = await Model.findById(id)
+      .populate(populate)
+      .exec();
     if (doc) {
       req.doc = doc;
       next();
@@ -39,16 +58,29 @@ exports.create = async (req, res, next) => {
 };
 
 exports.all = async (req, res, next) => {
-  const { query = {} } = req;
+  const { query = {}, params = {} } = req;
   const { limit, page, skip } = paginationParseParams(query);
   const { sortBy, direction } = sortParseParams(query, fields);
   const sort = sortCompactToStr(sortBy, direction);
+  /*
+   * Invocamos la función filterByNested para obtener
+   * las llaves si es el caso por las cuales vamos a
+   * el listado y el nuevo populate basado en la
+   * diferencia entre las referencias del modelo y
+   * las llaves de los parametros enviados para no
+   * tener que hacer populate por la llave por la
+   * cual estamos filtrado o de alguna manera la
+   * llave padre
+   */
+  const { filters, populate } = filterByNested(params, referencesNames);
+  const populateObject = populateToObject(populate.split(" "), virtuals);
 
   try {
-    const all = Model.find()
+    const all = Model.find(filters)
       .sort(sort)
       .skip(skip)
       .limit(limit)
+      .populate(populateObject)
       .exec();
     const count = Model.countDocuments();
 
