@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const controller = require('./controller');
 const tasksRouter = require('./../tasks/routes');
-const { auth } = require('./../auth');
+const { auth, me } = require('./../auth');
 
 /*
  * /api/tasks/ POST - CREATE
@@ -22,8 +22,8 @@ router.route('/').get(auth, controller.all);
 router
   .route('/:id')
   .get(auth, controller.read)
-  .put(auth, controller.update)
-  .delete(auth, controller.delete);
+  .put(auth, me, controller.update)
+  .delete(auth, me, controller.delete);
 
 /*
  * /api/users/:userId/tasks/ POST - CREATE
@@ -32,7 +32,7 @@ router
  * /api/users/:userId/tasks/:id PUT - UPDATE
  * /api/users/:userId/tasks/:id DELETE - DELETE
  */
-
+  
 router.use('/:userId/tasks', tasksRouter);
 
 module.exports = router;
