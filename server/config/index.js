@@ -1,4 +1,4 @@
-require("dotenv").config("");
+require('dotenv').config('');
 
 const config = {
   server: {
@@ -17,20 +17,24 @@ const config = {
   },
   sort: {
     sortBy: {
-      default: "createdAt",
-      fields: ["createdAt", "updatedAt"],
+      default: 'createdAt',
+      fields: ['createdAt', 'updatedAt'],
     },
     direction: {
-      default: "desc",
-      options: ["asc", "desc"],
+      default: 'desc',
+      options: ['asc', 'desc'],
     },
   },
   populate: {
     virtuals: {
       limit: 10,
-      sort: "createdAt",
-      direction: "desc",
+      sort: 'createdAt',
+      direction: 'desc',
     },
+  },
+  token: {
+    secret: process.env.TOKEN_SECRET,
+    expires: process.env.TOKEN_EXPIRES,
   },
 };
 
