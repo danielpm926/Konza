@@ -1,15 +1,7 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const { body } = require('express-validator');
 
 const { Schema } = mongoose;
-
-/*
- * El Schema de mongoose nos brinda muchas
- * funcionalidades como establecer una validacion
- * basica para el modelo, asi como funciones de
- * quitar los espacios de sobra en los valores de
- * los campos y demas, inclusive colocar un valor
- * por defecto.
- */
 
 const fields = {
   title: {
@@ -20,25 +12,66 @@ const fields = {
   },
   description: {
     type: String,
-    default: "",
+    default: '',
     trim: true,
     maxlength: 256,
   },
 };
 
+const references = {
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+  },
+};
+
 /*
- * El Schema tambien permite establecer ciertas
- * opciones una de ellas son los timestamps para
- * que se creen los campos createdAt y updatedAt
- * de tipo fecha cada vez que se cree o actualice
- * un registro respectivamente
+ * En la configuracion del Schema indicamos que
+ * cada vez que vayamos a dar una respuesta en
+ * formato JSON incluya los campos virtuales
  */
 
-const project = new Schema(fields, {
-  timestamps: true,
-});
+const project = new Schema(
+  {
+    ...fields,
+    ...references,
+  },
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
+  },
+);
+
+/*
+ * Creamos un objeto virtuals que va a tener
+ * todos los campos virtuales donde se referencia
+ * el modelo, la llave local y la llave foranea
+ * que se utilizara para hacer populate de este campo
+ */
+
+const virtuals = {
+  tasks: {
+    ref: 'task',
+    localField: '_id',
+    foreignField: 'projectId',
+  },
+};
+
+/*
+ * Añadimos este campo con la referencia tasks
+ */
+
+project.virtual('tasks', virtuals.tasks);
+
+const sanitizers = [body('title').escape(), body('description').escape()];
 
 module.exports = {
-  Model: mongoose.model("project", project),
+  Model: mongoose.model('project', project),
   fields,
+  references,
+  virtuals,
+  sanitizers,
 };
