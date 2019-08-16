@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const { body, sanitizeBody } = require('express-validator');
 
 const { Schema } = mongoose;
 
@@ -11,7 +12,7 @@ const fields = {
   },
   description: {
     type: String,
-    default: "",
+    default: '',
     trim: true,
     maxlength: 256,
   },
@@ -35,12 +36,12 @@ const fields = {
 const references = {
   userId: {
     type: Schema.Types.ObjectId,
-    ref: "user",
+    ref: 'user',
     required: true,
   },
   projectId: {
     type: Schema.Types.ObjectId,
-    ref: "project",
+    ref: 'project',
   },
 };
 
@@ -58,8 +59,15 @@ const task = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
+
+const sanitizers = [
+  body('title').escape(),
+  body('description').escape(),
+  sanitizeBody('completed').toBoolean(),
+  body('dueDate').toDate(),
+];
 
 /*
  * Finalmente exportamos el nuevo objeto
@@ -67,7 +75,8 @@ const task = new Schema(
  */
 
 module.exports = {
-  Model: mongoose.model("task", task),
+  Model: mongoose.model('task', task),
   fields,
   references,
+  sanitizers,
 };
