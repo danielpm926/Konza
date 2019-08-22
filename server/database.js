@@ -7,7 +7,7 @@ exports.connect = ({ protocol, url, username, password }, options = {}) => {
 
   // Required auth
   if (username && password) {
-    dburl = `${protocol}://${username}:${password}@${url}`;
+    dburl = `${protocol}://${username}:${encodeURIComponent(password)}@${url}`;
   } else {
     dburl = `${protocol}://${url}`;
   }
